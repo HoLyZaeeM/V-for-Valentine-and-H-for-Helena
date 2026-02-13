@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valentine</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+body {
+    margin: 0;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(135deg, #ff4e50, #fc913a);
+    font-family: Arial, sans-serif;
+}
+
+.container {
+    text-align: center;
+    background: white;
+    padding: 50px;
+    border-radius: 20px;
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+    position: relative;
+    z-index: 10;
+}
+
+h1 {
+    margin-bottom: 30px;
+    color: #ff4e50;
+}
+
+button {
+    padding: 15px 35px;
+    margin: 15px;
+    border: none;
+    border-radius: 40px;
+    font-size: 18px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.yes {
+    background: #ff4e50;
+    color: white;
+}
+
+.yes:hover {
+    transform: scale(1.1);
+}
+
+.no {
+    background: #ddd;
+    position: absolute;
+}
+
+.heart {
+    position: fixed;
+    bottom: -20px;
+    pointer-events: none;
+    animation: floatUp linear forwards;
+}
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(-120vh); opacity: 0; }
+}
+
+.loveText {
+    position: fixed;
+    top: 38%;
+    width: 100%;
+    text-align: center;
+    font-family: 'Great Vibes', cursive;
+    font-size: 75px;
+    color: white;
+    text-shadow: 0 0 25px rgba(255,255,255,0.9);
+    animation: fadeIn 2s ease forwards;
+}
+
+.signature {
+    position: fixed;
+    top: 55%;
+    width: 100%;
+    text-align: center;
+    font-family: 'Great Vibes', cursive;
+    font-size: 40px;
+    color: white;
+    opacity: 0;
+    animation: fadeIn 3s ease forwards;
+    animation-delay: 1s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.8); }
+    to { opacity: 1; transform: scale(1); }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1 id="question"></h1>
+    <button class="yes" id="yesBtn">Yes 💘</button>
+    <button class="no" id="noBtn">No 😢</button>
+</div>
+
+<audio id="song" loop>
+    <source src="make_you_mine.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+const params = new URLSearchParams(window.location.search);
+const name = params.get("name") || "Helena";
+document.getElementById("question").innerText =
+    `Hey ${name}, will you be my Valentine? ❤️`;
+
+const noBtn = document.getElementById("noBtn");
+let targetX=0,targetY=0,currentX=0,currentY=0,isRunning=false;
+
+function setRandomTarget(){
+    targetX=Math.random()*(window.innerWidth-noBtn.offsetWidth);
+    targetY=Math.random()*(window.innerHeight-noBtn.offsetHeight);
+}
+
+function animate(){
+    if(!isRunning) return;
+    currentX+=(targetX-currentX)*0.12;
+    currentY+=(targetY-currentY)*0.12;
+    noBtn.style.left=currentX+"px";
+    noBtn.style.top=currentY+"px";
+    if(Math.abs(targetX-currentX)<1 && Math.abs(targetY-currentY)<1){
+        isRunning=false; return;
+    }
+    requestAnimationFrame(animate);
+}
+
+document.addEventListener("mousemove",(e)=>{
+    const rect=noBtn.getBoundingClientRect();
+    const distance=Math.hypot(
+        e.clientX-(rect.left+rect.width/2),
+        e.clientY-(rect.top+rect.height/2)
+    );
+    if(distance<120 && !isRunning){
+        setRandomTarget();
+        isRunning=true;
+        animate();
+    }
+});
+
+const heartTypes=["❤️","💖","💘","💝","💗","💓","💞","💕","💟"];
+let celebrationInterval;
+
+function createHeart(){
+    const heart=document.createElement("div");
+    heart.classList.add("heart");
+    heart.innerText=heartTypes[Math.floor(Math.random()*heartTypes.length)];
+    heart.style.left=Math.random()*100+"vw";
+    heart.style.fontSize=(18+Math.random()*40)+"px";
+    const duration=3+Math.random()*4;
+    heart.style.animationDuration=duration+"s";
+    document.body.appendChild(heart);
+    setTimeout(()=>{heart.remove();},duration*1000);
+}
+
+document.getElementById("yesBtn").addEventListener("click",()=>{
+    document.querySelector(".container").style.display="none";
+
+    const text=document.createElement("div");
+    text.classList.add("loveText");
+    text.innerHTML="She said Yessss 😭😍";
+    document.body.appendChild(text);
+
+    const sign=document.createElement("div");
+    sign.classList.add("signature");
+    sign.innerHTML="Yours forever, Zaeem ❤️";
+    document.body.appendChild(sign);
+
+    celebrationInterval=setInterval(()=>{createHeart();},120);
+
+    const song=document.getElementById("song");
+    song.volume=0.6;
+    song.currentTime=0; 
+    song.play();
+});
+</script>
+
+</body>
+</html>
